@@ -89,7 +89,7 @@ services:
       - '12181:12181'
 
   spark:
-    image: jupyter/pyspark-notebook
+    build:
       context: streamProcessing
       dockerfile: Dockerfile
     links:
