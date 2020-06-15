@@ -3,10 +3,10 @@ from kafka import KafkaProducer, KafkaClient
 import tweepy
 
 # Twitter Credentials Obtained from http://dev.twitter.com
-consumer_key = "3MMF0romoyUKxEMcGqqV9NdEm"
-consumer_secret = "9LcmuKknDVckHPR2nE7aOsgUcpQAOPkNXoGISPGSZyIrIMjYNv"
-access_key = "117212674-NJKiMnNXHD1KAUJmESwhC9XrqPQtbMCXhiZ558g1"
-access_secret = "NHPlN3mb2sf7ttDvpySNARC8dWoEcmC40wsX9STXJW07v"
+consumer_key = 'CONSUMERKEY'
+consumer_secret = "CPONSUMERSECRET"
+access_key = "ACCESSKEY"
+access_secret = "ACCESSSECRET"
 
 # Words to track
 WORDS = ["USA", "China", "Venezuela", "Rusia", "Brazil", "Iran", "Israel", "Germany", "Japan"]
