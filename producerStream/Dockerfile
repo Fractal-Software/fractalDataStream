@@ -2,7 +2,7 @@ FROM python:3
 
 ADD twitter-producer.py /
 
-RUN pip install tweepy confluent-kafka
+RUN pip3 install tweepy confluent-kafka
 
 ENTRYPOINT ["cd","/"]
-CMD ["python", "twitter-producer.py"]
+CMD ["python3", "twitter-producer.py"]
