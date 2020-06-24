@@ -14,7 +14,9 @@ services:
       placement:
         constraints:
           - node.labels.zoo==1
-    command: /kafka/bin/zookeeper-server-start.sh /kafka/config/zookeeper.properties
+    environment:
+      -  "ZOOKEEPER_CLIENT_PORT=2181"
+    # command: /kafka/bin/zookeeper-server-start.sh /kafka/config/zookeeper.properties
 
   kafka1:
     image: confluentinc/cp-kafka:latest
