@@ -1,9 +1,8 @@
-FROM python:3
+FROM python:3.7
 
-LABEL maintainer="kmillan"
+ADD twitter-producer.py /
 
 RUN pip install tweepy confluent-kafka
 
-COPY twitter-producer.py /
 ENTRYPOINT ["cd","/"]
 CMD ["python", "twitter-producer.py"]
