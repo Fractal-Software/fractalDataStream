@@ -35,7 +35,7 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: localhost:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9093
-      
+
   kafka2:
     image: confluentinc/cp-kafka
     volumes:
@@ -53,7 +53,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 2
       KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9094
 
   kafka3:
     image: confluentinc/cp-kafka
@@ -72,7 +72,7 @@ services:
     environment:
       KAFKA_BROKER_ID: 3
       KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9095
 
   twitter-producer:
     build:
