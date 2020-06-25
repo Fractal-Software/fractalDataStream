@@ -76,7 +76,7 @@ services:
 
   twitter-producer:
     build:
-      context: producerStream
+      context: ./producerStream
       dockerfile: Dockerfile
     ports:
       - '12181:12181'
