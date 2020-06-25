@@ -1,12 +1,13 @@
 import json
 from kafka import KafkaProducer, KafkaClient
 import tweepy
+import os
 
 # Twitter Credentials Obtained from http://dev.twitter.com
-consumer_key = 'CONSUMERKEY'
-consumer_secret = "CPONSUMERSECRET"
-access_key = "ACCESSKEY"
-access_secret = "ACCESSSECRET"
+consumer_key = os.environ['CONSUMER_KEY']
+consumer_secret = os.environ['CONSUMER_SECRET']
+access_key = os.environ['ACCESS_KEY']
+access_secret = os.environ['ACCESS_SECRET']
 
 # Words to track
 WORDS = ["USA", "China", "Venezuela", "Rusia", "Brazil", "Iran", "Israel", "Germany", "Japan"]

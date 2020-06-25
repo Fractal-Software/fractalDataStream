@@ -82,6 +82,16 @@ services:
       - '12181:12181'
     networks:
       - kafka-net
+    environment: 
+      CONSUMER_KEY: /run/secrets/consumer_key
+      CONSUMER_SECRET: /run/secrets/consumer_secret
+      ACCESS_KEY: /run/secrets/access_key
+      ACCESS_SECRET: /run/secrets/access_secret
+    secrets:
+      - consumer_key
+      - consumer_secret
+      - access_key
+      - access_secret
 
   spark-master:
     build:
@@ -113,6 +123,16 @@ services:
       - "SPARK_MASTER=spark://spark-master:7077"
 networks:
   kafka-net:
+
+secrets:
+  consumer_key:
+    file: ./consumer_key.txt
+  consumer_secret:
+    file: ./consumer_secret.txt
+  access_key:
+    file: ./access_key.txt
+  access_secret:
+    file: ./access_secret.txts
 
 volumes:
   kafka-stack-1-logs:
