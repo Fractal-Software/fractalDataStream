@@ -1,6 +1,6 @@
 FROM python:3
 
-ADD twitter-producer.py /
+COPY twitter-producer.py /
 
 RUN pip3 install tweepy confluent-kafka
 
