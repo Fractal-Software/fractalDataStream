@@ -1,3 +1,7 @@
+Initialize docker swarm
+
+docker swarm init
+
 The external secrets must be created before you deploy the docker-compose.yml file:
 
 $ echo "A secret content" | docker secret create consumer_key -
