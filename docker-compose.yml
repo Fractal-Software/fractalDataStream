@@ -121,6 +121,7 @@ services:
       - kafka-net
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
+      
 networks:
   kafka-net:
 
