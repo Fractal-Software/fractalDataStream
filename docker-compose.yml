@@ -76,7 +76,7 @@ services:
 
   twitter-producer:
     build:
-      context: /producerStream
+      context: producerStream
       dockerfile: Dockerfile
     ports:
       - '12181:12181'
@@ -97,7 +97,6 @@ services:
     build:
       context: streamProcessing
       dockerfile: Dockerfile
-    container_name: spark-master
     links:
       - kafka1
       - kafka2
@@ -112,7 +111,6 @@ services:
 
   spark-worker-1:
     image: bde2020/spark-worker:2.4.5-hadoop2.7
-    container_name: spark-worker-1
     links:
       - spark-master
     ports:
