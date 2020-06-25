@@ -1,10 +1,8 @@
 FROM python:3
 
-WORKDIR /
+COPY ["twitter-producer.py", "/"]
 
-COPY twitter-producer.py /
-
-RUN pip3 install tweepy confluent-kafka
+RUN pip install tweepy kafka-python
 
 WORKDIR /
 
