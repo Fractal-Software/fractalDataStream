@@ -75,9 +75,7 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9095
 
   twitter-producer:
-    build:
-      context: producerStream
-      dockerfile: Dockerfile
+    image: kmillanr84/twitter-producer
     ports:
       - '12181:12181'
     networks:
@@ -138,3 +136,6 @@ volumes:
   kafka-stack-2-logs:
   kafka-stack-3-logs:
   zoo-stack-data:
+
+
+eleccionvenezuela@repsol.com

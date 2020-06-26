@@ -16,3 +16,5 @@ $ docker-compose build
 Deploy the stack with docker stack:
 
 $ docker stack deploy -c docker-compose.yml secrets
+
+ssh -i "keypair.pem" ubuntu@18.219.55.159
