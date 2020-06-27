@@ -92,13 +92,7 @@ services:
       ACCESS_SECRET: /run/secrets/access_secret
 
   spark-master:
-    build:
-      context: streamProcessing
-      dockerfile: Dockerfile
-    links:
-      - kafka1
-      - kafka2
-      - kafka3
+    image: kmillanr84/spark-master
     ports:
       - "8888:8888"
       - "7077:7077"
@@ -109,8 +103,6 @@ services:
 
   spark-worker-1:
     image: bde2020/spark-worker:2.4.5-hadoop2.7
-    links:
-      - spark-master
     ports:
       - "8081:8081"
     networks:
