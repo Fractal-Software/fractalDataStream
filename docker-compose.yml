@@ -99,6 +99,7 @@ services:
     networks:
       - kafka-net
     environment:
+      - SPARK_MASTER_PORT: 
       - INIT_DAEMON_STEP=setup_spark
 
   spark-worker-1:

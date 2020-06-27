@@ -1,6 +1,9 @@
  
 FROM bde2020/spark-base:2.4.5-hadoop2.7
 
+ENV SPARK_MASTER_NAME spark-master
+ENV SPARK_MASTER_PORT 7077
+
 COPY submit.sh /
 
 # Copy the requirements.txt first, for separate dependency resolving and downloading
