@@ -1,3 +1,6 @@
+This application was made for the purpose of creating a sentiment analysis pipeline that connects to twitter
+-for a given subject-, and sends the processed data all the way up to the backend.
+
 Initialize docker swarm
 
 docker swarm init
