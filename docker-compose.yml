@@ -113,13 +113,13 @@ services:
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
 
-  # node-backend:
-  #   image: kmillanr84/node-backend
-  #   ports:
-  #     - "44444:44444"
-  #     - "33334:33334"
-  #   networks:
-  #       - kafka-net
+  node-backend:
+    image: kmillanr84/node-backend
+    ports:
+      - "44444:44444"
+      - "33334:33334"
+    networks:
+        - kafka-net
 
 networks:
   kafka-net:
