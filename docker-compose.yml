@@ -114,7 +114,7 @@ services:
       - "SPARK_MASTER=spark://spark-master:7077"
 
   node-backend:
-    image: kmillanr84/node-backend
+    image: kmillanr84/fractal-backend
     ports:
       - "44444:44444"
       - "33334:33334"
