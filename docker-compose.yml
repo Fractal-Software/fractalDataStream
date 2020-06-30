@@ -6,7 +6,7 @@ services:
       - zoo-stack-data:/tmp/zookeeper
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - 2181:2181
+      - "2181:2181"
     networks:
       - kafka-net
     deploy:
@@ -23,7 +23,8 @@ services:
        - kafka-stack-1-logs:/tmp/kafka-logs
        - /var/run/docker.sock:/var/run/docker.sock
     ports:
-       - 9093:9093
+       - "9092:9092"
+       - "29092:29092"
     networks:
        - kafka-net
     deploy:
@@ -33,8 +34,8 @@ services:
           - node.labels.kafka==1
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9093
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: INNER_LISTENER://kafka1:29092,OUTER_LISTENER://localhost:9092
 
   kafka2:
     image: confluentinc/cp-kafka
@@ -42,7 +43,8 @@ services:
        - kafka-stack-2-logs:/tmp/kafka-logs
        - /var/run/docker.sock:/var/run/docker.sock
     ports:
-       - 9094:9094
+       - "9093:9093"
+       - "29093:29093"
     networks:
        - kafka-net
     deploy:
@@ -52,8 +54,8 @@ services:
           - node.labels.kafka==2
     environment:
       KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9094
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: INNER_LISTENER://kafka2:29093,OUTER_LISTENER://localhost:9093
 
   kafka3:
     image: confluentinc/cp-kafka
@@ -61,7 +63,8 @@ services:
        - kafka-stack-3-logs:/tmp/kafka-logs
        - /var/run/docker.sock:/var/run/docker.sock
     ports:
-       - 9095:9095
+       - "9094:9094"
+       - "29094:29094"
     networks:
        - kafka-net
     deploy:
@@ -71,13 +74,13 @@ services:
           - node.labels.kafka==3
     environment:
       KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: localhost:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9095
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: INNER_LISTENER://kafka3:29094,OUTER_LISTENER://localhost:9094
 
   twitter-producer:
     image: kmillanr84/twitter-producer
     ports:
-      - '12181:12181'
+      - "12181:12181"
     networks:
       - kafka-net
     secrets:
@@ -113,8 +116,8 @@ services:
   # node-backend:
   #   image: kmillanr84/node-backend
   #   ports:
-  #     - "5000:5000"
-  #     - "5001:5001"
+  #     - "44444:44444"
+  #     - "33334:33334"
   #   networks:
   #       - kafka-net
 

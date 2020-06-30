@@ -4,6 +4,10 @@ WORKDIR /app
 
 COPY backendConsumer.js /app
 ENTRYPOINT ["cd","/app"]
-RUN npm install
-EXPOSE 4444
+
+WORKDIR / 
+
+RUN npm install && \
+    npm i express socket.io
+EXPOSE 44444 33334
 CMD npm start

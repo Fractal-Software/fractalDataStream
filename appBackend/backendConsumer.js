@@ -1,4 +1,3 @@
-const fs = require('fs')
 var server = require('http').Server(app);
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -10,7 +9,7 @@ const { exec } = require('child_process');
 
 const kafka = new Kafka({
   logLevel: logLevel.INFO,
-  brokers: ["kafka1:9093,kafka2:9094,kafka3:9095"],
+  brokers: ["kafka1:9092,kafka2:9093,kafka3:9094"],
   clientId: 'backend-consumer'//,
   //ssl: {
   //   rejectUnauthorized: false
