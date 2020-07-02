@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
+    image: wurstmeister/zookeeper
     volumes:
       - zoo-stack-data:/tmp/zookeeper
       - /var/run/docker.sock:/var/run/docker.sock
@@ -10,152 +10,172 @@ services:
     networks:
       - kafka-net
     deploy:
-      mode: global
       placement:
         constraints:
-          - node.labels.zoo==1
-    environment:
-      -  "ZOOKEEPER_CLIENT_PORT=2181"
-    deploy:
+          - node.labels.zookeeper==1
       restart_policy:
         condition: on-failure
+    environment:
+      -  "ZOOKEEPER_CLIENT_PORT=2181"
 
   kafka1:
-    image: confluentinc/cp-kafka
+    image: wurstmeister/kafka:latest
     volumes:
        - kafka-stack-1-logs:/tmp/kafka-logs
        - /var/run/docker.sock:/var/run/docker.sock
     ports:
-       - "9092:9092"
-       - "29092:29092"
+    - target: 9093
+      published: 9093
+      protocol: tcp
+      mode: host
     networks:
        - kafka-net
     deploy:
-      mode: global
+      mode: replicated
+      replicas: 2
       placement:
         constraints:
-          - node.labels.kafka==1
+          - node.labels.kafka1==1
+      restart_policy:
+        condition: on-failure
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: INNER_LISTENER://kafka1:29092,OUTER_LISTENER://localhost:9092
-    deploy:
-      restart_policy:
-        condition: on-failure
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      HOSTNAME_COMMAND: "docker info | grep ^Name: | cut -d' ' -f 2"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://_{HOSTNAME_COMMAND}:9093
+      KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      
+  # kafka2:
+  #   image: wurstmeister/kafka:latest
+  #   volumes:
+  #      - kafka-stack-2-logs:/tmp/kafka-logs
+  #      - /var/run/docker.sock:/var/run/docker.sock
+  #   ports:
+  #     - "9094:9094"
+  #   networks:
+  #      - kafka-net
+  #   deploy:
+  #     mode: global
+  #     placement:
+  #       constraints:
+  #         - node.labels.kafka==2
+  #     restart_policy:
+  #       condition: on-failure
+  #   environment:
+  #     KAFKA_BROKER_ID: 2
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+  #     HOSTNAME_COMMAND: "docker info | grep ^Name: | cut -d' ' -f 2"
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+  #     KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://_{HOSTNAME_COMMAND}:9094
+  #     KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9094
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
 
-  kafka2:
-    image: confluentinc/cp-kafka
-    volumes:
-       - kafka-stack-2-logs:/tmp/kafka-logs
-       - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-       - "9093:9093"
-       - "29093:29093"
-    networks:
-       - kafka-net
-    deploy:
-      mode: global
-      placement:
-        constraints:
-          - node.labels.kafka==2
-    environment:
-      KAFKA_BROKER_ID: 2
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: INNER_LISTENER://kafka2:29093,OUTER_LISTENER://localhost:9093
-    deploy:
-      restart_policy:
-        condition: on-failure
-
-  kafka3:
-    image: confluentinc/cp-kafka
-    volumes:
-       - kafka-stack-3-logs:/tmp/kafka-logs
-       - /var/run/docker.sock:/var/run/docker.sock
-    ports:
-       - "9094:9094"
-       - "29094:29094"
-    networks:
-       - kafka-net
-    deploy:
-      mode: global
-      placement:
-        constraints:
-          - node.labels.kafka==3
-    environment:
-      KAFKA_BROKER_ID: 3
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: INNER_LISTENER://kafka3:29094,OUTER_LISTENER://localhost:9094
-      restart_policy:
-        condition: on-failure
+  # kafka3:
+  #   image: wurstmeister/kafka:latest
+  #   volumes:
+  #      - kafka-stack-3-logs:/tmp/kafka-logs
+  #      - /var/run/docker.sock:/var/run/docker.sock
+  #   ports:
+  #     - "9095:9095"
+  #   networks:
+  #      - kafka-net
+  #   deploy:
+  #     mode: global
+  #     placement:
+  #       constraints:
+  #         - node.labels.kafka==3
+  #     restart_policy:
+  #       condition: on-failure
+  #   environment:
+  #     KAFKA_BROKER_ID: 3
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+  #     HOSTNAME_COMMAND: "docker info | grep ^Name: | cut -d' ' -f 2"
+  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+  #     KAFKA_ADVERTISED_LISTENERS: INSIDE://:9092,OUTSIDE://_{HOSTNAME_COMMAND}:9095
+  #     KAFKA_LISTENERS: INSIDE://:9092,OUTSIDE://:9095
+  #     KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
         
-  twitter-producer:
-    image: kmillanr84/twitter-producer
-    ports:
-      - "12181:12181"
-    networks:
-      - kafka-net
-    secrets:
-      - consumer_key
-      - consumer_secret
-      - access_key
-      - access_secret
-    environment: 
-      CONSUMER_KEY: /run/secrets/consumer_key
-      CONSUMER_SECRET: /run/secrets/consumer_secret
-      ACCESS_KEY: /run/secrets/access_key
-      ACCESS_SECRET: /run/secrets/access_secret
-    restart_policy:
-      condition: on-failure
+  # twitter-producer:
+  #   image: kmillanr84/twitter-producer
+  #   ports:
+  #     - "12181:12181"
+  #   networks:
+  #     - kafka-net
+  #   secrets:
+  #     - consumer_key
+  #     - consumer_secret
+  #     - access_key
+  #     - access_secret
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 15s
+  #       max_attempts: 3
+  #   environment: 
+  #     CONSUMER_KEY: /run/secrets/consumer_key
+  #     CONSUMER_SECRET: /run/secrets/consumer_secret
+  #     ACCESS_KEY: /run/secrets/access_key
+  #     ACCESS_SECRET: /run/secrets/access_secret
 
-  spark-master:
-    image: kmillanr84/spark-master
-    ports:
-      - "8888:8888"
-      - "7077:7077"
-    networks:
-      - kafka-net
-    environment:
-      - INIT_DAEMON_STEP=setup_spark
-    restart_policy:
-      condition: on-failure
-      delay: 10s
-      max_attempts: 3
+  # spark-master:
+  #   image: kmillanr84/spark-master
+  #   ports:
+  #     - "8888:8888"
+  #     - "7077:7077"
+  #   networks:
+  #     - kafka-net
+  #   deploy:
+  #     mode: global
+  #     placement:
+  #         constraints:
+  #             - node.labels.type == spark-master
+  #             - node.labels.spark == true
+  #   environment:
+  #     - INIT_DAEMON_STEP=setup_spark
 
-  spark-worker-1:
-    image: bde2020/spark-worker:2.4.5-hadoop2.7
-    ports:
-      - "8081:8081"
-    networks:
-      - kafka-net
-    environment:
-      - "SPARK_MASTER=spark://spark-master:7077"
-    restart_policy:
-      condition: on-failure
+  # spark-worker-1:
+  #   image: bde2020/spark-worker:2.4.5-hadoop2.7
+  #   ports:
+  #     - "8081:8081"
+  #   networks:
+  #     - kafka-net
+  #   deploy:
+  #     mode: global
+  #     placement:
+  #         constraints: 
+  #             - node.labels.type == spark-worker-1
+  #             - node.labels.spark == true 
+  #   environment:
+  #     - "SPARK_MASTER=spark://spark-master:7077"
 
-  node-backend:
-    image: kmillanr84/fractal-backend
-    ports:
-      - "44444:44444"
-      - "33334:33334"
-    networks:
-        - kafka-net
-    restart_policy:
-      condition: on-failure
+  # node-backend:
+  #   image: kmillanr84/fractal-backend
+  #   ports:
+  #     - "44444:44444"
+  #     - "33334:33334"
+  #   networks:
+  #       - kafka-net
+
 networks:
   kafka-net:
 
-secrets:
-  consumer_key:
-    external: true
-  consumer_secret:
-    external: true
-  access_key:
-    external: true
-  access_secret:
-    external: true
+# secrets:
+#   consumer_key:
+#     external: true
+#   consumer_secret:
+#     external: true
+#   access_key:
+#     external: true
+#   access_secret:
+#     external: true
 
 volumes:
   kafka-stack-1-logs:
-  kafka-stack-2-logs:
-  kafka-stack-3-logs:
+  # kafka-stack-2-logs:
+  # kafka-stack-3-logs:
   zoo-stack-data:

@@ -9,7 +9,7 @@ const { exec } = require('child_process');
 
 const kafka = new Kafka({
   logLevel: logLevel.INFO,
-  brokers: ["kafka1:9092,kafka2:9093,kafka3:9094"],
+  brokers: ["kafka1:9093,kafka2:9094,kafka3:9095"],
   clientId: 'backend-consumer'//,
   //ssl: {
   //   rejectUnauthorized: false

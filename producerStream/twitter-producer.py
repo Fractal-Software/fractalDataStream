@@ -38,7 +38,7 @@ class StreamListener(tweepy.StreamListener):
         return True # Don't kill the stream
 
 # Kafka Configuration
-producer = KafkaProducer(bootstrap_servers=['kafka1:9092','kafka2:9093','kafka3:9094'])
+producer = KafkaProducer(bootstrap_servers=['kafka1:9093','kafka2:9094','kafka3:9095'])
 # producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
 
 # Create Auth object
