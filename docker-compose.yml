@@ -22,7 +22,7 @@ services:
        - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9093:9093"
-    depends_on:
+    links:
       - zookeeper
     networks:
        - kafka-net
@@ -47,7 +47,7 @@ services:
         - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9094:9094"
-    depends_on:
+    links:
       - zookeeper
     networks:
         - kafka-net
@@ -72,7 +72,7 @@ services:
         - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9095:9095"
-    depends_on:
+    links:
       - zookeeper
     networks:
         - kafka-net
@@ -94,7 +94,7 @@ services:
     image: kmillanr84/twitter-producer
     networks:
       - kafka-net
-    depends_on:
+    links:
       - kafka1
       - kafka2
       - kafka3
