@@ -22,6 +22,8 @@ services:
        - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9093:9093"
+    depends_on:
+      - zookeeper
     networks:
        - kafka-net
     deploy:
@@ -45,6 +47,8 @@ services:
         - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9094:9094"
+    depends_on:
+      - zookeeper
     networks:
         - kafka-net
     deploy:
@@ -68,6 +72,8 @@ services:
         - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "9095:9095"
+    depends_on:
+      - zookeeper
     networks:
         - kafka-net
     deploy:
@@ -86,10 +92,12 @@ services:
 
   twitter-producer:
     image: kmillanr84/twitter-producer
-    ports:
-      - "12181:12181"
     networks:
       - kafka-net
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
     secrets:
       - consumer_key
       - consumer_secret
@@ -98,8 +106,7 @@ services:
     deploy:
       restart_policy:
         condition: on-failure
-        delay: 15s
-        max_attempts: 3
+        delay: 20s
     environment: 
       CONSUMER_KEY: /run/secrets/consumer_key
       CONSUMER_SECRET: /run/secrets/consumer_secret
