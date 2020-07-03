@@ -148,15 +148,15 @@ services:
 networks:
   kafka-net:
 
-# secrets:
-#   consumer_key:
-#     external: true
-#   consumer_secret:
-#     external: true
-#   access_key:
-#     external: true
-#   access_secret:
-#     external: true
+secrets:
+  consumer_key:
+    external: true
+  consumer_secret:
+    external: true
+  access_key:
+    external: true
+  access_secret:
+    external: true
 
 volumes:
   kafka-stack-1-logs:
