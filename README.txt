@@ -18,4 +18,4 @@ $ docker-compose build
 
 Deploy the stack with docker stack:
 
-$ docker stack deploy -c docker-compose.yml pipeline
+$ docker stack deploy -c docker-compose.yml fractal-pipeline

@@ -1,9 +1,9 @@
 import json
-from kafka import KafkaProducer, KafkaClient
+from kafka import KafkaProducer, KafkaClient, KafkaConsumer
 import tweepy
 import os
 
-# Twitter Credentials Obtained from http://dev.twitter.com
+# Twitter Credentials Obtained
 consumer_key = os.environ['CONSUMER_KEY']
 consumer_secret = os.environ['CONSUMER_SECRET']
 access_key = os.environ['ACCESS_KEY']
@@ -38,8 +38,7 @@ class StreamListener(tweepy.StreamListener):
         return True # Don't kill the stream
 
 # Kafka Configuration
-producer = KafkaProducer(bootstrap_servers=['kafka1:9093','kafka2:9094','kafka3:9095'],request_timeout_ms=1000000, api_version_auto_timeout_ms=1000000)
-# producer = KafkaProducer(bootstrap_servers=['localhost:9092'])
+producer = KafkaProducer(bootstrap_servers=['kafka1:9092'],request_timeout_ms=1000000, api_version_auto_timeout_ms=1000000)
 
 # Create Auth object
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
