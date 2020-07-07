@@ -14,9 +14,10 @@ WORKDIR /
 
 COPY twitter-producer.py /
 COPY requirements.txt /
+COPY produce.sh /
 
 RUN pip install -r requirements.txt
 
 WORKDIR /
 
-# CMD ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "10s","python", "twitter-producer.py"]
+# CMD ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "20s","python", "twitter-producer.py"]

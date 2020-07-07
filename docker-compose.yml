@@ -64,56 +64,49 @@ services:
       CONSUMER_SECRET: /run/secrets/consumer_secret
       ACCESS_KEY: /run/secrets/access_key
       ACCESS_SECRET: /run/secrets/access_secret
-    command: ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "30s","/bin/bash", "/produce.sh"]
+    command: ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "30s","python", "twitter-producer.py"]
 
-  spark-master:
-    image: kmillanr84/spark-master
+  master:
+    image: kmillanr84/spark
+    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.master.Master -h master && cd ~ && dockerize -wait tcp://kafka1:9092 -timeout 30s /bin/bash /submit.sh"]
+    hostname: master
+    environment:
+      MASTER: spark://master:7077
+      SPARK_CONF_DIR: /conf
+      SPARK_PUBLIC_DNS: localhost
+    expose:
+      - 7077
     ports:
-      - "8888:8888"
-      - "7077:7077"
-    networks:
-      - spark-net
-    deploy:
-      mode: global
-      restart_policy:
-        condition: on-failure
+      - 4040:4040
+      - 6066:6066
+      - 7077:7077
     volumes:
       - master-logs:/tmp/master-logs
-      - ./apps:/opt/spark-apps
-      - ./data:/opt/spark-data
+      - ./conf/master:/conf
+      - ./data:/tmp/data
+
+  worker:
+    image: kmillanr84/spark
+    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077"]
+    hostname: worker
     environment:
-      - "SPARK_MASTER_PORT=7077"
-      - "SPARK_LOCAL_IP=spark-master"
-      - "SPARK_MASTER_WEBUI_PORT=8080"
-      - "ENABLE_INIT_DAEMON=false"
-    
-  spark-worker:
-    image: bde2020/spark-worker:2.4.5-hadoop2.7
-    ports:
-      - "8081:8081"
-    networks:
-      - spark-net
-    deploy:
-      mode: global
+      SPARK_CONF_DIR: /conf
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 1g
+      SPARK_PUBLIC_DNS: localhost
+    links:
+      - master
+    expose:
+      - 8881
+      - 8882
+      - 8883
     volumes:
       - worker-logs:/tmp/worker-logs
-      - ./apps:/opt/spark-apps
-      - ./data:/opt/spark-data
-    environment:
-      - "SPARK_MASTER=spark://spark-master:7077"
-      - "SPARK_LOCAL_IP=spark-worker"
-
-  # node-backend:
-  #   image: kmillanr84/fractal-backend
-  #   ports:
-  #     - "44444:44444"
-  #     - "33334:33334"
-  #   networks:
-  #       - kafka-net
+      - ./conf/worker:/conf
+      - ./data:/tmp/data
 
 networks:
   kafka-net:
-  spark-net:
 
 secrets:
   consumer_key:

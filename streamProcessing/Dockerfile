@@ -1,27 +1,73 @@
- 
-FROM bde2020/spark-master:2.4.5-hadoop2.7
+FROM debian:stretch
 
-ENV SPARK_MASTER_NAME spark-master
-ENV SPARK_MASTER_PORT 7077
+RUN apt-get update \
+ && apt-get install -y locales \
+ && dpkg-reconfigure -f noninteractive locales \
+ && locale-gen C.UTF-8 \
+ && /usr/sbin/update-locale LANG=C.UTF-8 \
+ && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
+ && locale-gen \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-RUN apk add --no-cache openssl
+# Users with other locales should set this in their derivative image
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
 
-ENV DOCKERIZE_VERSION v0.6.1
-RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /usr/local/bin -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && rm dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz
+RUN apt-get update \
+ && apt-get install -y curl unzip \
+    python3 python3-setuptools \
+ && ln -s /usr/bin/python3 /usr/bin/python \
+ && easy_install3 pip py4j \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-# COPY submit.sh /
+# http://blog.stuart.axelbrooke.com/python-3-on-spark-return-of-the-pythonhashseed
+ENV PYTHONHASHSEED 0
+ENV PYTHONIOENCODING UTF-8
+ENV PIP_DISABLE_PIP_VERSION_CHECK 1
 
-# Copy the requirements.txt first, for separate dependency resolving and downloading
-ONBUILD COPY requirements.txt /app/
-ONBUILD RUN cd /app \
-      && pip install -r requirements.txt
+# this installs packages mentioned in requirements-pip.txt
+ADD requirements.txt .
+RUN pip3 install --upgrade pip setuptools && \
+    pip3 install -r requirements.txt
 
-# Copy the source code
-ONBUILD COPY . /app
+# JAVA
+RUN apt-get update \
+ && apt-get install -y openjdk-8-jre \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /
+# HADOOP
+ENV HADOOP_VERSION 2.7.0
+ENV HADOOP_HOME /usr/hadoop-$HADOOP_VERSION
+ENV HADOOP_CONF_DIR=$HADOOP_HOME/etc/hadoop
+ENV PATH $PATH:$HADOOP_HOME/bin
+RUN curl -sL --retry 3 \
+  "http://archive.apache.org/dist/hadoop/common/hadoop-$HADOOP_VERSION/hadoop-$HADOOP_VERSION.tar.gz" \
+  | gunzip \
+  | tar -x -C /usr/ \
+ && rm -rf $HADOOP_HOME/share/doc \
+ && chown -R root:root $HADOOP_HOME
+
+# SPARK
+ENV SPARK_VERSION 2.4.5
+ENV SPARK_PACKAGE spark-${SPARK_VERSION}-bin-without-hadoop
+ENV SPARK_HOME /usr/spark-${SPARK_VERSION}
+ENV SPARK_DIST_CLASSPATH="$HADOOP_HOME/etc/hadoop/*:$HADOOP_HOME/share/hadoop/common/lib/*:$HADOOP_HOME/share/hadoop/common/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/hdfs/lib/*:$HADOOP_HOME/share/hadoop/hdfs/*:$HADOOP_HOME/share/hadoop/yarn/lib/*:$HADOOP_HOME/share/hadoop/yarn/*:$HADOOP_HOME/share/hadoop/mapreduce/lib/*:$HADOOP_HOME/share/hadoop/mapreduce/*:$HADOOP_HOME/share/hadoop/tools/lib/*"
+ENV PATH $PATH:${SPARK_HOME}/bin
+RUN curl -sL --retry 3 \
+  "https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/${SPARK_PACKAGE}.tgz" \
+  | gunzip \
+  | tar x -C /usr/ \
+ && mv /usr/$SPARK_PACKAGE $SPARK_HOME \
+ && chown -R root:root $SPARK_HOME
+
+WORKDIR $SPARK_HOME
+
+COPY kafka-pyspark-streaming.py $SPARK_HOME
+COPY submit.sh $SPARK_HOME
 
 RUN \
   mkdir sparkCheckpointVen && \
@@ -33,16 +79,3 @@ RUN \
   mkdir sparkCheckpointJap && \
   mkdir sparkCheckpointIran && \
   mkdir sparkCheckpointBra
-
-COPY kafka-pyspark-streaming.py /
-COPY submit.sh /
-EXPOSE 8888 7077 8081
-
-WORKDIR /
-
-CMD ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "30s", "/bin/bash", "/submit.sh"]
-
-
-# CMD ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "10s","spark-submit","--packages","org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.johnsnowlabs.nlp:spark-nlp_2.11:2.4.5","--class com.inndata.StructuredStreaming.Kafka","--master spark://spark-master:7077","/kafka-pyspark-streaming.py"]
-# Define submit command
-# CMD spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.johnsnowlabs.nlp:spark-nlp_2.11:2.4.5 --class com.inndata.StructuredStreaming.Kafka --master local[*] /kafka-pyspark-streaming.py
