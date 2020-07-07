@@ -40,7 +40,7 @@ EXPOSE 8888 7077 8081
 
 WORKDIR /
 
-CMD ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "10s", "/bin/bash", "/submit.sh"]
+CMD ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "30s", "/bin/bash", "/submit.sh"]
 
 
 # CMD ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "10s","spark-submit","--packages","org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.johnsnowlabs.nlp:spark-nlp_2.11:2.4.5","--class com.inndata.StructuredStreaming.Kafka","--master spark://spark-master:7077","/kafka-pyspark-streaming.py"]

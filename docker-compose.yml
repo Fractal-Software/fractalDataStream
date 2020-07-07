@@ -64,7 +64,7 @@ services:
       CONSUMER_SECRET: /run/secrets/consumer_secret
       ACCESS_KEY: /run/secrets/access_key
       ACCESS_SECRET: /run/secrets/access_secret
-    command: ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "10s","python", "twitter-producer.py"]
+    command: ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "30s","/bin/bash", "/produce.sh"]
 
   spark-master:
     image: kmillanr84/spark-master
@@ -72,9 +72,11 @@ services:
       - "8888:8888"
       - "7077:7077"
     networks:
-      - kafka-net
+      - spark-net
     deploy:
       mode: global
+      restart_policy:
+        condition: on-failure
     volumes:
       - master-logs:/tmp/master-logs
       - ./apps:/opt/spark-apps
@@ -90,7 +92,7 @@ services:
     ports:
       - "8081:8081"
     networks:
-      - kafka-net
+      - spark-net
     deploy:
       mode: global
     volumes:
@@ -99,6 +101,7 @@ services:
       - ./data:/opt/spark-data
     environment:
       - "SPARK_MASTER=spark://spark-master:7077"
+      - "SPARK_LOCAL_IP=spark-worker"
 
   # node-backend:
   #   image: kmillanr84/fractal-backend
@@ -110,6 +113,7 @@ services:
 
 networks:
   kafka-net:
+  spark-net:
 
 secrets:
   consumer_key:
