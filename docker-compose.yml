@@ -64,11 +64,10 @@ services:
       CONSUMER_SECRET: /run/secrets/consumer_secret
       ACCESS_KEY: /run/secrets/access_key
       ACCESS_SECRET: /run/secrets/access_secret
-    command: ["dockerize", "-wait", "tcp://kafka1:9092", "-timeout", "30s","python", "twitter-producer.py"]
+    command: ["sh","-c","dockerize -wait tcp://kafka1:9092 -timeout 30s && python twitter-producer.py"]
 
   master:
     image: kmillanr84/spark
-    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.master.Master -h master && cd ~ && dockerize -wait tcp://kafka1:9092 -timeout 30s /bin/bash /submit.sh"]
     hostname: master
     environment:
       MASTER: spark://master:7077
@@ -84,6 +83,7 @@ services:
       - master-logs:/tmp/master-logs
       - ./conf/master:/conf
       - ./data:/tmp/data
+    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.master.Master -h master"]
 
   worker:
     image: kmillanr84/spark
