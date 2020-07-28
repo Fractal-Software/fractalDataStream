@@ -2,8 +2,7 @@ FROM node:10.15.2
 
 WORKDIR /app
 
-COPY backendConsumer.js /app
-ENTRYPOINT ["cd","/app"]
+COPY . /app
 
 RUN npm install && \
     npm i express socket.io

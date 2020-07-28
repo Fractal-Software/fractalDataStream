@@ -1,11 +1,11 @@
 import pyspark
-import os,sys,time
+import os,sys,time,json
+import sparknlp
 from pyspark import SparkContext, SparkConf
 from pyspark.streaming import StreamingContext
 from pyspark.sql import SparkSession, SQLContext
 from sparknlp.pretrained import PretrainedPipeline
-import sparknlp
-import json
+from sparknlp.base import PipelineModel
 from pyspark.sql.functions import regexp_replace
 import pandas as pd
 from pyspark.sql import functions as F
@@ -16,7 +16,12 @@ from pyspark.sql import Window
 # Initiate spark context
 spark = sparknlp.start()
 
-pipeline = PretrainedPipeline('analyze_sentiment', lang='en')
+# ONLINE
+# pipeline = PretrainedPipeline('analyze_sentiment', lang='en')
+
+# OFFLINE
+# pipeline = PipelineModel.load('analyze_sentimentdl_use_twitter_en_2.5.0_2.4_1589108892106')
+pipeline = PipelineModel.load('analyze_sentiment_en_2.4.0_2.4_1580483464667')
 
 # Define Schema
 schema = T.StructType([ T.StructField("text", T.StringType(), True)])

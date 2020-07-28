@@ -35,7 +35,7 @@ RUN pip3 install --upgrade pip setuptools && \
 
 # JAVA
 RUN apt-get update \
- && apt-get install -y openjdk-8-jre \
+ && apt-get install -y openjdk-8-jdk \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/*
 
@@ -66,9 +66,8 @@ RUN curl -sL --retry 3 \
 
 WORKDIR $SPARK_HOME
 
-COPY kafka-pyspark-streaming.py $SPARK_HOME
-COPY submit.sh $SPARK_HOME
-
+COPY . $SPARK_HOME
+RUN pip install spark-nlp
 RUN \
   mkdir sparkCheckpointVen && \
   mkdir sparkCheckpointUSA && \
