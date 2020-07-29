@@ -20,10 +20,10 @@ docker swarm init
 The external secrets must be created before you deploy the docker-compose.yml file:
 
 ```javascript
-$ echo "A secret content" | docker secret create consumer_key -
-$ echo "A secret content" | docker secret create consumer_secret -
-$ echo "A secret content" | docker secret create access_key -
-$ echo "A secret content" | docker secret create access_secret -
+$ echo "secret content" | docker secret create consumer_key -
+$ echo "secret content" | docker secret create consumer_secret -
+$ echo "secret content" | docker secret create access_key -
+$ echo "secret content" | docker secret create access_secret -
 ```
 
 ## Build the image:
