@@ -1,3 +1,5 @@
+# Sentiment Analysis Pipeline
+
 Container Memory Size must be set to atleast 6G, for Ubuntu see:
 
 https://hostadvice.com/how-to/how-to-limit-a-docker-containers-resources-on-ubuntu-18-04/
@@ -7,7 +9,7 @@ For mac and Windows this can be set on Docker > Preferences
 This application was made for the purpose of creating a sentiment analysis pipeline that connects to twitter
 -for a given subject-, and sends the processed data to the backend.
 
-To start the application:
+## Start the application:
 
 Initialize docker swarm
 
@@ -15,15 +17,15 @@ docker swarm init
 
 The external secrets must be created before you deploy the docker-compose.yml file:
 
-$ echo "A secret content" | docker secret create consumer_key -
-$ echo "A secret content" | docker secret create consumer_secret -
-$ echo "A secret content" | docker secret create access_key -
-$ echo "A secret content" | docker secret create access_secret -
+* $ echo "A secret content" | docker secret create consumer_key -
+* $ echo "A secret content" | docker secret create consumer_secret -
+* $ echo "A secret content" | docker secret create access_key -
+* $ echo "A secret content" | docker secret create access_secret -
 
-Build the image (docker stack ignores the build option so you must do it manually):
+## Build the image:
 
 $ docker-compose build
 
-Deploy the stack with docker stack:
+## Deploy the stack with docker stack:
 
 $ docker stack deploy -c docker-compose.yml fractal-pipeline
