@@ -13,19 +13,27 @@ This application was made for the purpose of creating a sentiment analysis pipel
 
 Initialize docker swarm
 
+```javascript
 docker swarm init
+```
 
 The external secrets must be created before you deploy the docker-compose.yml file:
 
-* $ echo "A secret content" | docker secret create consumer_key -
-* $ echo "A secret content" | docker secret create consumer_secret -
-* $ echo "A secret content" | docker secret create access_key -
-* $ echo "A secret content" | docker secret create access_secret -
+```javascript
+$ echo "A secret content" | docker secret create consumer_key -
+$ echo "A secret content" | docker secret create consumer_secret -
+$ echo "A secret content" | docker secret create access_key -
+$ echo "A secret content" | docker secret create access_secret -
+```
 
 ## Build the image:
 
+```javascript
 $ docker-compose build
+```
 
 ## Deploy the stack with docker stack:
 
+```javascript
 $ docker stack deploy -c docker-compose.yml fractal-pipeline
+```
