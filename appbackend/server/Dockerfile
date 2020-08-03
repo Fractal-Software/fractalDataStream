@@ -1,8 +1,8 @@
 FROM node:10.15.2
 
-WORKDIR /app
+WORKDIR /
 
-COPY . /app
+COPY . /
 
 RUN npm install && \
     npm i express socket.io
