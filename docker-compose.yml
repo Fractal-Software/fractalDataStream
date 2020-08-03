@@ -30,10 +30,8 @@ services:
     ports:
       - "29092:29092"
       - "9092:9092"
-      - "9101:9101"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_ADVERTISED_HOST_NAME: kafka1 # docker-machine ip
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
@@ -43,8 +41,7 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 100
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_JMX_PORT: 9101
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka1:29092
       CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
@@ -168,7 +165,7 @@ services:
       MASTER: spark://master:7077
       SPARK_CONF_DIR: /conf
       SPARK_PUBLIC_DNS: localhost
-    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.master.Master -h master"]
+    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.master.Master -h master  && bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.johnsnowlabs.nlp:spark-nlp_2.11:2.5.3 --driver-memory 12g --class com.inndata.StructuredStreaming.Kafka --master spark://master:7077 --conf spark.streaming.backpressure.enabled=true --conf spark.streaming.backpressure.initialRate=60 --conf spark.streaming.kafka.maxRatePerPartition=200 --conf spark.streaming.backpressure.pid.minRate=1600 --conf spark.driver.memoryOverhead=8g --conf spark.executor.memoryOverhead=8g kafka-pyspark-streaming.py"]
 
   worker:
     image: kmillanr84/sparktest
@@ -191,17 +188,19 @@ services:
       SPARK_WORKER_CORES: 2
       SPARK_WORKER_MEMORY: 10g
       SPARK_PUBLIC_DNS: localhost
-    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077 && bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.johnsnowlabs.nlp:spark-nlp_2.11:2.5.3 --driver-memory 12g --class com.inndata.StructuredStreaming.Kafka --master spark://master:7077 --conf spark.streaming.backpressure.enabled=true --conf spark.streaming.backpressure.initialRate=60 --conf spark.streaming.kafka.maxRatePerPartition=200 --conf spark.streaming.backpressure.pid.minRate=1600 --conf spark.driver.memoryOverhead=8g --conf spark.executor.memoryOverhead=8g kafka-pyspark-streaming.py"]
+    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077"]
 
-  # node-backend:
-  #   image: kmillanr84/fractal-backend
-  #   volumes:
-  #     - .:/app/
-  #   networks:
-  #     - kafka-net
-  #   ports:
-  #     - 33334:3334
-  #     - 44444:4444
+  node-backend:
+    image: kmillanr84/fractal-backend
+    volumes:
+      - .:/app/
+    depends_on:
+      - postgres
+    networks:
+      - kafka-net
+    ports:
+      - 33334:3334
+      - 44444:4444
 
 networks:
   kafka-net:

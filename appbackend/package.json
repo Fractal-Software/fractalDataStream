@@ -1,0 +1,14 @@
+{
+  "name": "appbackend",
+  "version": "1.0.0",
+  "description": "real-time sentiment analysis",
+  "main": "backendConsumer.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "kafka-node": "^5.0.0",
+    "socket.io": "^2.3.0"
+  }
+}
