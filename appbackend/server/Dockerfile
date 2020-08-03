@@ -9,4 +9,4 @@ RUN npm install && \
 
 EXPOSE 44444 33334
 
-CMD ["npm", "start"]
+CMD ["npm", "start"]	
