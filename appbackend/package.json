@@ -2,8 +2,11 @@
   "name": "appbackend",
   "version": "1.0.0",
   "description": "real-time sentiment analysis",
-  "main": "backendConsumer.js",
-  "keywords": [],
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {

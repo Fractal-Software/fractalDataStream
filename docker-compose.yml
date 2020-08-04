@@ -46,7 +46,7 @@ services:
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-      KAFKA_CREATE_TOPICS: "tweetsTopic:1:1,sentVen:1:1,sentUSA:1:1,sentRus:1:1,sentChina:1:1,sentIs:1:1,sentGer:1:1,sentJap:1:1,sentIran:1:1,sentBra:1:1"
+      # KAFKA_CREATE_TOPICS: "tweetsTopic:1:1,sentVen:1:1,sentUSA:1:1,sentRus:1:1,sentChina:1:1,sentIs:1:1,sentGer:1:1,sentJap:1:1,sentIran:1:1,sentBra:1:1"
     networks:
        - kafka-net
     deploy:
@@ -143,7 +143,7 @@ services:
       CONSUMER_SECRET: /run/secrets/consumer_secret
       ACCESS_KEY: /run/secrets/access_key
       ACCESS_SECRET: /run/secrets/access_secret
-    command: ["sh","-c","dockerize -wait tcp://kafka1:9092 -timeout 30s && python twitter-producer.py kafka1:9092"]
+    command: ["sh","-c","dockerize -wait tcp://kafka1:29092 -timeout 30s && python twitter-producer.py kafka1:29092"]
 
   master:
     image: kmillanr84/sparktest
@@ -190,17 +190,15 @@ services:
       SPARK_PUBLIC_DNS: localhost
     command: ["sh","-c","bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077"]
 
-  node-backend:
-    image: kmillanr84/fractal-backend
-    volumes:
-      - .:/app/
-    depends_on:
-      - postgres
-    networks:
-      - kafka-net
-    ports:
-      - 33334:3334
-      - 44444:4444
+  # node-backend:
+  #   image: kmillanr84/fractal-backend
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - kafka-net
+  #   ports:
+  #     - 33334:3334
+  #     - 44444:4444
 
 networks:
   kafka-net:
