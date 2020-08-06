@@ -18,7 +18,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-  kafka1:
+  broker:
     image: confluentinc/cp-kafka
     depends_on:
       - "zookeeper"
@@ -32,21 +32,20 @@ services:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
-      KAFKA_ADVERTISED_HOST_NAME: kafka1 # docker-machine ip
+      KAFKA_ADVERTISED_HOST_NAME: broker # docker-machine ip
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 100
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: kafka1:29092
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
       CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
       CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
       CONFLUENT_METRICS_ENABLE: 'true'
       CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
-      # KAFKA_CREATE_TOPICS: "tweetsTopic:1:1,sentVen:1:1,sentUSA:1:1,sentRus:1:1,sentChina:1:1,sentIs:1:1,sentGer:1:1,sentJap:1:1,sentIran:1:1,sentBra:1:1"
     networks:
        - kafka-net
     deploy:
@@ -58,7 +57,7 @@ services:
     image: confluentinc/cp-schema-registry
     depends_on:
       - zookeeper
-      - kafka1
+      - broker
     ports:
       - 8081:8081
     networks:
@@ -72,7 +71,7 @@ services:
     image: confluentinc/cp-kafka-connect
     depends_on:
       - zookeeper
-      - kafka1
+      - broker
       - schema-registry
     ports:
       - "8083:8083"
@@ -81,7 +80,7 @@ services:
     environment:
       CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
       CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
-      CONNECT_BOOTSTRAP_SERVERS: 'kafka1:29092'
+      CONNECT_BOOTSTRAP_SERVERS: 'broker:29092'
       CONNECT_REST_PORT: 8083
       CONNECT_GROUP_ID: compose-connect-group
       CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
@@ -125,7 +124,7 @@ services:
     image: kmillanr84/twitter-producer
     depends_on:
       - zookeeper
-      - kafka1
+      - broker
     networks:
       - kafka-net
     secrets:
@@ -143,12 +142,14 @@ services:
       CONSUMER_SECRET: /run/secrets/consumer_secret
       ACCESS_KEY: /run/secrets/access_key
       ACCESS_SECRET: /run/secrets/access_secret
-    command: ["sh","-c","dockerize -wait tcp://kafka1:29092 -timeout 30s && python twitter-producer.py kafka1:29092"]
+    command: ["sh","-c","dockerize -wait tcp://broker:29092 -timeout 30s && python twitter-producer.py broker:29092"]
 
   master:
-    image: kmillanr84/sparktest
+    image: kmillanr84/spark-base
     networks:
       - kafka-net
+    depends_on:
+      - twitter-producer
     expose:
       - 7077
     ports:
@@ -165,10 +166,10 @@ services:
       MASTER: spark://master:7077
       SPARK_CONF_DIR: /conf
       SPARK_PUBLIC_DNS: localhost
-    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.master.Master -h master  && bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.johnsnowlabs.nlp:spark-nlp_2.11:2.5.3 --driver-memory 12g --class com.inndata.StructuredStreaming.Kafka --master spark://master:7077 --conf spark.streaming.backpressure.enabled=true --conf spark.streaming.backpressure.initialRate=60 --conf spark.streaming.kafka.maxRatePerPartition=200 --conf spark.streaming.backpressure.pid.minRate=1600 --conf spark.driver.memoryOverhead=8g --conf spark.executor.memoryOverhead=8g kafka-pyspark-streaming.py"]
+    command: ["sh","-c","bin/spark-class org.apache.spark.deploy.master.Master -h master"]
 
   worker:
-    image: kmillanr84/sparktest
+    image: kmillanr84/spark-base
     networks:
       - kafka-net
     depends_on:
@@ -190,15 +191,42 @@ services:
       SPARK_PUBLIC_DNS: localhost
     command: ["sh","-c","bin/spark-class org.apache.spark.deploy.worker.Worker spark://master:7077"]
 
-  # node-backend:
-  #   image: kmillanr84/fractal-backend
-  #   depends_on:
-  #     - postgres
-  #   networks:
-  #     - kafka-net
-  #   ports:
-  #     - 33334:3334
-  #     - 44444:4444
+  spark-submit:
+    image: kmillanr84/spark-base
+    networks:
+      - kafka-net
+    depends_on:
+      - master
+    expose:
+      - 8884
+      - 8885
+      - 8886
+    environment:
+      SPARK_CONF_DIR: /conf
+      SPARK_WORKER_CORES: 2
+      SPARK_WORKER_MEMORY: 10g
+      SPARK_PUBLIC_DNS: localhost
+    command: ["sh","-c","bin/spark-submit \
+              --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.johnsnowlabs.nlp:spark-nlp_2.11:2.5.3 \
+              --driver-memory 12g \
+              --class com.inndata.StructuredStreaming.Kafka \
+              --master spark://master:7077 \
+              --conf spark.streaming.backpressure.enabled=true \
+              --conf spark.streaming.backpressure.initialRate=60 \
+              --conf spark.streaming.kafka.maxRatePerPartition=200 \
+              --conf spark.streaming.backpressure.pid.minRate=1600 \
+              --conf spark.driver.memoryOverhead=8g \
+              --conf spark.executor.memoryOverhead=8g kafka-pyspark-streaming.py"]
+
+  node-backend:
+    image: kmillanr84/fractal-backend
+    depends_on:
+      - postgres
+    networks:
+      - kafka-net
+    ports:
+      - 33334:3334
+      - 44444:4444
 
 networks:
   kafka-net:

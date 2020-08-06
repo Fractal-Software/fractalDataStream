@@ -29,7 +29,7 @@ schema = T.StructType([ T.StructField("text", T.StringType(), True)])
 # read stream from kafka producer
 kafkaDf = spark \
         .readStream.format("kafka") \
-        .option("kafka.bootstrap.servers","kafka1:9092") \
+        .option("kafka.bootstrap.servers","broker:29092") \
         .option("subscribe", "tweetsTopic") \
         .load()
 
@@ -98,7 +98,7 @@ ds_Venezuela = sent_Venezuela \
   .writeStream \
   .outputMode("update") \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka1:9092") \
+  .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentVen") \
   .option("checkpointLocation", "/sparkCheckpointVen") \
   .start() \
@@ -108,7 +108,7 @@ ds_USA = sent_USA \
   .writeStream \
   .outputMode("update") \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka1:9092") \
+  .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentUSA") \
   .option("checkpointLocation", "/sparkCheckpointUSA") \
   .start() \
@@ -118,7 +118,7 @@ ds_Rusia = sent_Rusia \
   .writeStream \
   .outputMode("update") \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka1:9092") \
+  .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentRus") \
   .option("checkpointLocation", "/sparkCheckpointRus") \
   .start() \
@@ -128,7 +128,7 @@ ds_China = sent_China \
   .writeStream \
   .outputMode("update") \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka1:9092") \
+  .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentChina") \
   .option("checkpointLocation", "/sparkCheckpointChi") \
   .start() \
@@ -138,7 +138,7 @@ ds_Israel = sent_Israel \
   .writeStream \
   .outputMode("update") \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka1:9092") \
+  .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentIs") \
   .option("checkpointLocation", "/sparkCheckpointIs") \
   .start() \
@@ -148,7 +148,7 @@ ds_Germany = sent_Germany \
   .writeStream \
   .outputMode("update") \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka1:9092") \
+  .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentGer") \
   .option("checkpointLocation", "/sparkCheckpointGer") \
   .start() \
@@ -158,7 +158,7 @@ ds_Japan = sent_Japan \
   .writeStream \
   .outputMode("update") \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka1:9092") \
+  .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentJap") \
   .option("checkpointLocation", "/sparkCheckpointJap") \
   .start() \
@@ -168,7 +168,7 @@ ds_Iran = sent_Iran \
   .writeStream \
   .outputMode("update") \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka1:9092") \
+  .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentIran") \
   .option("checkpointLocation", "/sparkCheckpointIran") \
   .start() \
@@ -178,7 +178,7 @@ ds_Brazil = sent_Brazil \
   .writeStream \
   .outputMode("update") \
   .format("kafka") \
-  .option("kafka.bootstrap.servers", "kafka1:9092") \
+  .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentBra") \
   .option("checkpointLocation", "/sparkCheckpointBra") \
   .start() \

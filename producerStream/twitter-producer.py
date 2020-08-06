@@ -39,10 +39,10 @@ class StreamListener(tweepy.StreamListener):
         return True # Don't kill the stream
 
     def on_timeout(self):
-        return True # Don't kill the stream
+        return True # Don't kill the streamc
 
 # Kafka Configuration
-producer = KafkaProducer(bootstrap_servers=['kafka1:9092'],request_timeout_ms=1000000, api_version_auto_timeout_ms=1000000)
+producer = KafkaProducer(bootstrap_servers=['broker:29092'],request_timeout_ms=1000000, api_version_auto_timeout_ms=1000000)
 # Create Auth object
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_key, access_secret)
