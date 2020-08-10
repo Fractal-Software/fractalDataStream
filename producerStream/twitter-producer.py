@@ -39,7 +39,7 @@ class StreamListener(tweepy.StreamListener):
         return True # Don't kill the stream
 
     def on_timeout(self):
-        return True # Don't kill the streamc
+        return True # Don't kill the stream
 
 # Kafka Configuration
 producer = KafkaProducer(bootstrap_servers=['broker:29092'],request_timeout_ms=1000000, api_version_auto_timeout_ms=1000000)
