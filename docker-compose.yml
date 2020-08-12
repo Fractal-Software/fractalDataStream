@@ -65,10 +65,29 @@ services:
     environment:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: zookeeper:2181
-      SCHEMA_REGISTRY_LISTENERS: http://localhost:8081
+      SCHEMA_REGISTRY_LISTENERS: http://schema-registry:8081
 
+  rest-proxy:
+    image: confluentinc/cp-kafka-rest
+    networks:
+      - kafka-net
+    depends_on:
+      - zookeeper
+      - broker
+      - schema-registry
+    ports:
+      - 8082:8082
+    environment:
+      KAFKA_REST_HOST_NAME: rest-proxy
+      KAFKA_REST_BOOTSTRAP_SERVERS: 'broker:29092'
+      KAFKA_REST_LISTENERS: "http://rest-proxy:8082"
+      KAFKA_REST_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'    
+      
   kafka-connect:
     image: confluentinc/cp-kafka-connect
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       - zookeeper
       - broker
@@ -77,6 +96,8 @@ services:
       - "8083:8083"
     networks:
       - kafka-net
+    volumes:
+      - ./kafka-connect:/etc/kafka-connect/jars
     environment:
       CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
       CONNECT_LOG4J_APPENDER_STDOUT_LAYOUT_CONVERSIONPATTERN: "[%d] %p %X{connector.context}%m (%c:%L)%n"
@@ -98,29 +119,9 @@ services:
       CONNECT_INTERNAL_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_LOG4J_ROOT_LOGLEVEL: "INFO"
       CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,com.mongodb.kafka=DEBUG"
-      CONNECT_PLUGIN_PATH: /usr/share/java
+      CONNECT_PLUGIN_PATH: /usr/share/java,/etc/kafka-connect/jars
       CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
 
-  postgres:
-    image: postgres
-    restart: always
-    networks:
-      - kafka-net
-    # secrets:
-    #   - postgres_user
-    #   - postgres_pass
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgresql-data:/var/lib/postgresql
-      - /etc/localtime:/etc/localtime
-      - /etc/timezone:/etc/timezone
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: pass
-      POSTGRES_DB: test
-      
-      # create postgres tables in this container with a timed or dockerized python script
   twitter-producer:
     image: kmillanr84/twitter-producer
     depends_on:
@@ -144,6 +145,23 @@ services:
       ACCESS_KEY: /run/secrets/access_key
       ACCESS_SECRET: /run/secrets/access_secret
     command: ["sh","-c","dockerize -wait tcp://broker:29092 -timeout 30s && python twitter-producer.py broker:29092"]
+
+  postgres:
+    image: postgres
+    restart: always
+    networks:
+      - kafka-net
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresql-data:/var/lib/postgresql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - /etc/localtime:/etc/localtime
+      - /etc/timezone:/etc/timezone
+    environment:
+      POSTGRES_USER: pass
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: pass
 
   master:
     image: kmillanr84/spark-base
@@ -219,15 +237,15 @@ services:
               --conf spark.driver.memoryOverhead=8g \
               --conf spark.executor.memoryOverhead=8g kafka-pyspark-streaming.py"]
 
-  # node-backend:
-  #   image: kmillanr84/fractal-backend
-  #   depends_on:
-  #     - postgres
-  #   networks:
-  #     - kafka-net
-  #   ports:
-  #     - 33334:3334
-  #     - 44444:4444
+  node-backend:
+    image: kmillanr84/fractal-backend
+    depends_on:
+      - postgres
+    networks:
+      - kafka-net
+    ports:
+      - 33334:3334
+      - 44444:4444
 
 networks:
   kafka-net:
@@ -241,13 +259,10 @@ secrets:
     external: true
   access_secret:
     external: true
-  postgres_user:
-    external: true
-  postgres_pass:
-    external: true
 
 volumes:
   kafka-stack-1-logs:
+  kafka-connect:
   tweet-logs:
   master-logs:
   worker-logs:
