@@ -100,7 +100,7 @@ ds_Venezuela = sent_Venezuela \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentVen") \
-  .option("checkpointLocation", "/sparkCheckpointVen") \
+  .option("checkpointLocation", "sparkCheckpointVen") \
   .start() \
 
 ds_USA = sent_USA \
@@ -110,7 +110,7 @@ ds_USA = sent_USA \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentUSA") \
-  .option("checkpointLocation", "/sparkCheckpointUSA") \
+  .option("checkpointLocation", "sparkCheckpointUSA") \
   .start() \
 
 ds_Rusia = sent_Rusia \
@@ -120,7 +120,7 @@ ds_Rusia = sent_Rusia \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentRus") \
-  .option("checkpointLocation", "/sparkCheckpointRus") \
+  .option("checkpointLocation", "sparkCheckpointRus") \
   .start() \
 
 ds_China = sent_China \
@@ -130,7 +130,7 @@ ds_China = sent_China \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentChina") \
-  .option("checkpointLocation", "/sparkCheckpointChi") \
+  .option("checkpointLocation", "sparkCheckpointChi") \
   .start() \
 
 ds_Israel = sent_Israel \
@@ -140,7 +140,7 @@ ds_Israel = sent_Israel \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentIs") \
-  .option("checkpointLocation", "/sparkCheckpointIs") \
+  .option("checkpointLocation", "sparkCheckpointIs") \
   .start() \
 
 ds_Germany = sent_Germany \
@@ -150,7 +150,7 @@ ds_Germany = sent_Germany \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentGer") \
-  .option("checkpointLocation", "/sparkCheckpointGer") \
+  .option("checkpointLocation", "sparkCheckpointGer") \
   .start() \
 
 ds_Japan = sent_Japan \
@@ -160,7 +160,7 @@ ds_Japan = sent_Japan \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentJap") \
-  .option("checkpointLocation", "/sparkCheckpointJap") \
+  .option("checkpointLocation", "sparkCheckpointJap") \
   .start() \
 
 ds_Iran = sent_Iran \
@@ -170,7 +170,7 @@ ds_Iran = sent_Iran \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentIran") \
-  .option("checkpointLocation", "/sparkCheckpointIran") \
+  .option("checkpointLocation", "sparkCheckpointIran") \
   .start() \
 
 ds_Brazil = sent_Brazil \
@@ -180,21 +180,10 @@ ds_Brazil = sent_Brazil \
   .format("kafka") \
   .option("kafka.bootstrap.servers", "broker:29092") \
   .option("topic", "sentBra") \
-  .option("checkpointLocation", "/sparkCheckpointBra") \
+  .option("checkpointLocation", "sparkCheckpointBra") \
   .start() \
   .awaitTermination()
 
 
 # Run the following command in the shell or terminal in order to initiate the consumer stream
 # spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5,com.johnsnowlabs.nlp:spark-nlp_2.11:2.4.5  --class com.inndata.StructuredStreaming.Kafka --master local[*] /home/kevin/dockerStream/streamProcessing/kafka-pyspark-streaming.py
-
-# ds_USA = sent_USA \
-#   .selectExpr("CAST(value AS STRING) AS key", "to_json(struct(*)) AS value") \
-#   .writeStream \
-#   .outputMode("update") \
-#   .format("kafka") \
-#   .option("kafka.bootstrap.servers", 'localhost:9092') \
-#   .option("topic", "sentUSA") \
-#   .option("checkpointLocation", "/home/kevin/dockerStream/streamProcessing/sparkCheckpointUSA") \
-#   .start() \
-#   .awaitTermination()

@@ -259,6 +259,10 @@ secrets:
     external: true
   access_secret:
     external: true
+  postgres_user:
+    external: true
+  postgres_pass:
+    external: true
 
 volumes:
   kafka-stack-1-logs:
