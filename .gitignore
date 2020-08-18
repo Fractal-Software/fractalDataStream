@@ -2,4 +2,4 @@ producerStream/access_key.txt
 producerStream/access_secret.txt
 producerStream/consumer_key.txt
 producerStream/consumer_secret.txt
-**/node_modules
+appbackend/node_modules
