@@ -119,6 +119,21 @@ services:
       CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR,com.mongodb.kafka=DEBUG"
       CONNECT_PLUGIN_PATH: /usr/share/java
       CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+    # command: 
+      # - bash 
+      # - -c 
+      # - |
+      # echo "Installing connector plugins"
+      # confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
+      # #
+      # echo "Dowloading JDBC Drivers"
+      # cd /usr/share/confluent-hub-components/confluentinc-kafka-connect-jdbc/lib
+      # curl http://maven.xwiki.org/externals/com/oracle/jdbc/ojdbc8/12.2.0.1/ojdbc8-12.2.0.1.jar -o ojdbc8-12.2.0.1.jar
+      # #
+      # echo "Launching Kafka Connect worker"
+      # /etc/confluent/docker/run &
+      # #
+      # sleep infinity
 
   twitter-producer:
     image: kmillanr84/twitter-producer
@@ -138,10 +153,14 @@ services:
       restart_policy:
         condition: on-failure
     environment:
-      CONSUMER_KEY: /run/secrets/consumer_key
-      CONSUMER_SECRET: /run/secrets/consumer_secret
-      ACCESS_KEY: /run/secrets/access_key
-      ACCESS_SECRET: /run/secrets/access_secret
+      CONSUMER_KEY: Ar76P3lFUuvdfjnnh1Sqo4tY2
+      CONSUMER_SECRET: rPgsYaX7CAFCjvSJ2tS76z41LezyOYcZ9N4lX1GcL1MrRvNeyW
+      ACCESS_KEY: 117212674-pUfA8fdQkhwsyQj6mLLN92M1s2Mp74lTlACyolR7
+      ACCESS_SECRET: n6ONU6Se17UwqsVGR8cBbrHk1m5kY28FuqxGhPU8Ck3vh
+      # CONSUMER_KEY: /run/secrets/consumer_key
+      # CONSUMER_SECRET: /run/secrets/consumer_secret
+      # ACCESS_KEY: /run/secrets/access_key
+      # ACCESS_SECRET: /run/secrets/access_secret
     command: ["sh","-c","dockerize -wait tcp://broker:29092 -timeout 30s && python twitter-producer.py broker:29092"]
 
   postgres:
